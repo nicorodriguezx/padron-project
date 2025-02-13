@@ -13,20 +13,14 @@ def load_voters(file_path):
         return json.load(f)
 
 def create_dataframe(voters):
-    """Convert voters data to DataFrame with flattened structure"""
+    """Convert voters list to DataFrame and add computed columns"""
     df = pd.DataFrame(voters)
     
-    # Flatten nested dictionaries
-    df['localidad_codigo'] = df['localidad'].apply(lambda x: x['codigo'])
+    # Extract location names for easier filtering
     df['localidad_nombre'] = df['localidad'].apply(lambda x: x['nombre'])
-    df['street'] = df['address'].apply(lambda x: x['street'])
-    df['number'] = df['address'].apply(lambda x: x['number'])
+    df['departamento_nombre'] = df['departamento'].apply(lambda x: x['nombre'])
     
-    # Convert number to integer where possible
-    df['number'] = pd.to_numeric(df['number'], errors='ignore')
-    
-    # Drop original nested columns
-    df = df.drop(['localidad', 'address'], axis=1)
+    # Address is already a string, no need to extract street/number
     
     return df
 

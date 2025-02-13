@@ -67,9 +67,20 @@ def generate_age_stats(df):
     
     return age_stats, age_pcts
 
+def calculate_figure_size(num_locations):
+    """Calculate appropriate figure size based on number of locations"""
+    # Base width of 8 inches, increase by 1 inch for every 2 locations over 8
+    width = 8 + max(0, (num_locations - 8) / 2)
+    # Height starts at 6 and increases more slowly
+    height = 6 + max(0, (num_locations - 8) / 4)
+    return (width, height)
+
 def plot_gender_distribution(gender_stats, output_dir):
     """Create gender distribution plot"""
-    plt.figure(figsize=(12, 6))
+    num_locations = len(gender_stats.index)
+    figsize = calculate_figure_size(num_locations)
+    
+    plt.figure(figsize=figsize)
     
     x = range(len(gender_stats.index))
     width = 0.35
@@ -80,35 +91,86 @@ def plot_gender_distribution(gender_stats, output_dir):
     plt.xlabel('Localidad')
     plt.ylabel('Porcentaje')
     plt.title('Distribución de Género por Localidad')
-    plt.xticks([i + width/2 for i in x], gender_stats.index, rotation=45, ha='right')
+    
+    # Adjust label positions and rotation based on number of locations
+    if num_locations > 10:
+        plt.xticks([i + width/2 for i in x], gender_stats.index, rotation=45, ha='right')
+    else:
+        plt.xticks([i + width/2 for i in x], gender_stats.index, rotation=30, ha='right')
+    
     plt.legend()
     
-    plt.tight_layout()
-    plt.savefig(output_dir / 'gender_distribution.png')
+    # Adjust layout with more padding if needed
+    plt.tight_layout(pad=1.2)
+    plt.savefig(output_dir / 'gender_distribution.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 def plot_age_distribution(age_stats, age_pcts, output_dir):
     """Create age distribution plots"""
+    num_locations = len(age_stats.index)
+    figsize = calculate_figure_size(num_locations)
+    
     # Absolute numbers
-    plt.figure(figsize=(12, 6))
-    age_stats.plot(kind='bar', stacked=True)
+    plt.figure(figsize=figsize)
+    # Add bottom margin to make room for labels
+    plt.subplots_adjust(bottom=0.2)
+    
+    # Increase the figure width further for the bar plot
+    if num_locations > 10:
+        figsize = (figsize[0] * 1.3, figsize[1])
+        plt.gcf().set_size_inches(figsize)
+    
+    ax = age_stats.plot(kind='bar', stacked=True, width=0.8)
     plt.title('Distribución de Edades por Localidad (Números Absolutos)')
     plt.xlabel('Localidad')
     plt.ylabel('Cantidad de Votantes')
-    plt.legend(title='Grupo Etario', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.savefig(output_dir / 'age_distribution_absolute.png')
+    
+    # Adjust x-axis labels based on number of locations
+    if num_locations > 10:
+        plt.xticks(rotation=45, ha='right')
+    else:
+        plt.xticks(rotation=30, ha='right')
+    
+    # Add more space between tick labels
+    ax.set_xticklabels(ax.get_xticklabels(), ha='right')
+    
+    # Move legend outside if there are many locations
+    if num_locations > 8:
+        plt.legend(title='Grupo Etario', bbox_to_anchor=(1.05, 1), loc='upper left')
+    else:
+        plt.legend(title='Grupo Etario', loc='upper right')
+    
+    plt.tight_layout(pad=1.2, rect=[0, 0.1, 0.9, 0.9])
+    plt.savefig(output_dir / 'age_distribution_absolute.png', dpi=300, bbox_inches='tight')
     plt.close()
     
     # Percentages
-    plt.figure(figsize=(12, 6))
-    age_pcts.plot(kind='bar', stacked=True)
+    plt.figure(figsize=figsize)
+    # Add bottom margin to make room for labels
+    plt.subplots_adjust(bottom=0.2)
+    
+    ax = age_pcts.plot(kind='bar', stacked=True, width=0.8)
     plt.title('Distribución de Edades por Localidad (Porcentajes)')
     plt.xlabel('Localidad')
     plt.ylabel('Porcentaje')
-    plt.legend(title='Grupo Etario', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.savefig(output_dir / 'age_distribution_percentage.png')
+    
+    # Adjust x-axis labels based on number of locations
+    if num_locations > 10:
+        plt.xticks(rotation=45, ha='right')
+    else:
+        plt.xticks(rotation=30, ha='right')
+    
+    # Add more space between tick labels
+    ax.set_xticklabels(ax.get_xticklabels(), ha='right')
+    
+    # Move legend outside if there are many locations
+    if num_locations > 8:
+        plt.legend(title='Grupo Etario', bbox_to_anchor=(1.05, 1), loc='upper left')
+    else:
+        plt.legend(title='Grupo Etario', loc='upper right')
+    
+    plt.tight_layout(pad=1.2, rect=[0, 0.1, 0.9, 0.9])
+    plt.savefig(output_dir / 'age_distribution_percentage.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 def save_stats_to_csv(gender_stats, age_stats, age_pcts, output_dir):

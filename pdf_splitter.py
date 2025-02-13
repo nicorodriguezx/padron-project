@@ -1,5 +1,6 @@
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import argparse
 
 def split_pdf(input_path, output_folder):
     # Create output folder if it doesn't exist
@@ -35,8 +36,15 @@ def split_pdf(input_path, output_folder):
     print(f'Successfully split {total_pages} pages')
 
 if __name__ == "__main__":
-    # Example usage
-    input_pdf = r"C:\Users\SONY\Documents\Programacion\padron-project\GENERAL_LOPEZ.pdf"
-    output_dir = r"C:\Users\SONY\Documents\Programacion\padron-project\split_pages"
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Split a PDF file into individual pages')
+    parser.add_argument('input_pdf', help='Path to the input PDF file')
+    parser.add_argument('--output-dir', '-o', 
+                        default='split_pages',
+                        help='Output directory for split pages (default: split_pages)')
     
-    split_pdf(input_pdf, output_dir) 
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # Run the split operation
+    split_pdf(args.input_pdf, args.output_dir) 

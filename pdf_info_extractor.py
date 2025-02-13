@@ -20,22 +20,8 @@ def extract_location_info(text):
     }
 
 def parse_address(address):
-    """Separate address into street and number"""
-    # Handle special cases first
-    if address in ["ZONA RURAL", "ZONA RURAL S/N"]:
-        return {"street": address, "number": None}
-    
-    # Try to find the last number in the address
-    number_match = re.search(r'(\d+)\s*$', address)
-    if number_match:
-        number = number_match.group(1)
-        street = address[:address.rfind(number)].strip().rstrip(',')
-        # Handle case where number is 0
-        if number == "0":
-            number = None
-        return {"street": street, "number": number}
-    else:
-        return {"street": address.strip(), "number": None}
+    """Clean up address string"""
+    return address.strip()
 
 def parse_voter_line(line, location_info):
     """Parse a single line from the voter registry"""
@@ -43,17 +29,13 @@ def parse_voter_line(line, location_info):
     pattern = r'^\d+\s+(\d{8})\s+(\d{4})\s+([^,]+),([^,]+),\s*([^\s]+)\s+([MF])'
     match = re.match(pattern, line.strip())
     if match:
-        address = parse_address(match.group(4).strip())
         return {
             "departamento": location_info["departamento"],
             "localidad": location_info["localidad"],
             "dni": match.group(1),
             "birth_year": int(match.group(2)),
             "name": match.group(3).strip(),
-            "address": {
-                "street": address["street"],
-                "number": address["number"]
-            },
+            "address": parse_address(match.group(4)),
             "doc_type": match.group(5).strip(),
             "gender": match.group(6)
         }

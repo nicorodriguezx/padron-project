@@ -1,3 +1,7 @@
+analysis/
+data/
+split_pages/
+
 # Python
 __pycache__/
 *.py[cod]
